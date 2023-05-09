@@ -1,4 +1,5 @@
 import { chromium } from "playwright";
+import connection from "./db.js";
 import fs from "fs";
 
 async function getNoticesFromGoogle() {
@@ -29,16 +30,38 @@ async function getNoticesFromGoogle() {
           ".MultiLineEllipsis_ellipsis___1H7z"
         ).textContent;
 
+        const fecha = new Date();
+
         resultados.push({
           id: index,
           title,
           noticeContent,
+          createAt: fecha,
         });
       });
+
     return resultados;
   });
 
   console.log(listadoNoticasNba);
+
+  listadoNoticasNba.forEach((resultado) => {
+    const sql =
+      "INSERT INTO notice (title, description, content, createAt) VALUES (?, ?, ?, ?)";
+    const valores = [
+      resultado.title,
+      resultado.noticeContent,
+      "Contenido de la noticia",
+      resultado.createAt,
+    ];
+    connection.execute(sql, valores, (err, resultado) => {
+      if (err) {
+        console.error("Error al insertar el registro: " + err.stack);
+        return;
+      }
+      console.log("Registro insertado correctamente.");
+    });
+  });
 
   await browser.close();
   return listadoNoticasNba;

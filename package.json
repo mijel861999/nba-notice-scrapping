@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "dotenv": "^16.0.3",
+    "mysql2": "^3.3.0",
     "playwright": "^1.33.0"
   },
   "name": "scrapping-notices",
