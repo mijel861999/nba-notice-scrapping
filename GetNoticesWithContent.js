@@ -69,12 +69,38 @@ async function getNoticesFromGoogle(browser) {
 
   return listadoNoticasNba;
 }
+
+async function getNoticesWithContent (browser, noticia) {
+  console.log("Obtener contenido de: " + noticia.title)
+  const page = await browser.newPage();
+     
+  await page.goto(linkNoticiasNba + noticia.link)
+  await page.waitForLoadState("networkidle")
+
+  const screenshot = await page.screenshot();
+  console.log("Haciendo screenshot de esta noticia")
+  fs.writeFileSync(`noticia${index}.png`, screenshot);
+
+  /*const contenido = await page.evaluate(() => {
+      return "Este es el contenido nuevo"
+  })
+  */
+
+  return {
+    ...noticia,
+    content: "Este es el nuevo contenido"
+  }
+}
+
 async function index() {
   const browser = await chromium.launch({ headless: false});
 
   const listadoNoticiasNba = await getNoticesFromGoogle(browser);
 
-  storeNoticesInDatabase(listadoNoticiasNba)
+  listadoNoticiasNba.forEach(noticia => {
+    console.log(noticia)
+    getNoticesWithContent(browser, noticia)
+  })
 }
 
 index()
